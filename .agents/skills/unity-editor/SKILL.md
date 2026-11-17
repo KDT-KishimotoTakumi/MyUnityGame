@@ -12,4 +12,5 @@ description: MyUnityGameのUnity Editor操作（シーン・GameObject・マテ�
 - 変更系がタイムアウト・通信断になっても未実行とは限らない。状態を読み直し、同じ変更を再送しない。
 - シーンの変更は `save_scene` まで確認する。`save_scene` の `saveAs` は開いているシーンを切り替えないので、保存後に `load_scene` で開き直す。.meta と GUID を壊す手作業の YAML 編集はしない。
 - 画像は `manage_windows`（`focus` / `GameView`）の後に `capture_screenshot`（`captureMode: game`、`includeUI: true`）で保存し、PNG を開いて確認する。根拠として残す画像は `specs/<機能>/evidence/` にコピーする。
+- Play のフレームは Unity Editor が OS の前面にあるときだけ進む（バックグラウンドでは `Time.frameCount` が 1 のまま止まる。Run In Background を有効にしても変わらない）。Play 検証の前に Editor を前面に出し（PowerShell の `SetForegroundWindow` など）、`eval_csharp` で `Time.frameCount` が増えていることを確かめてから入力する。
 - Play を使ったら最後に入力解除・`stop_game`・`isPlaying: false` を確認する。1つの Editor を同時に複数の担当で操作しない。

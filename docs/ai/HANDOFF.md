@@ -2,12 +2,13 @@
 
 ## 現在の作業
 
-更新: 2026-11-17 Asia/Tokyo / ブランチ: `001-ballcollect-core` / 状態: 001 BallCollect 基本ゲームを `/speckit-implement` 中。T001〜T014 完了、T015（WASD の Play 検証）で停止中
+更新: 2026-11-17 Asia/Tokyo / ブランチ: `001-ballcollect-core` / 状態: 001 BallCollect を `/speckit-implement` 中。MVP（US1・US2）完了＝T001〜T015 完了。次は T016（US3、テスト先行）
 
-- 仕様: [`spec.md`](../../specs/001-ballcollect-core/spec.md) / [`plan.md`](../../specs/001-ballcollect-core/plan.md) / [`tasks.md`](../../specs/001-ballcollect-core/tasks.md) / [`quickstart.md`](../../specs/001-ballcollect-core/quickstart.md)。ユーザーが `/speckit-tasks` → `/speckit-implement` を実行して実装開始を依頼済み。追加ルール（30秒制限など）は範囲外（002 で扱う）。
-- 完了: シーン `Assets/Scenes/BallCollect.unity`（Floor 20×20、Player (0,0.5,−7) Rigidbody＋tag Player、Item_1〜5 Trigger、Main Camera (0,18,−16)/(50,0,0)、HUD Canvas と CollectedText「0/5」・ClearText 非アクティブ）、asmdef 2つ、マテリアル3つ、`Assets/Input/BallCollectControls.inputactions`（Gameplay: Move=WASD 2D composite、Restart=R）、`Assets/Scripts/PlayerController.cs`（Player に追加、inputActions 設定済み、シーン保存済み）。コンパイルエラー 0。US1 のスクリーンショットで配置を目視確認済み。
-- unity-cli の LSP 書き込み（`create_csharp_file`）は GitHub API の HTTP 403（csharp-lsp の取得失敗）で使えなかった。C# はファイルを直接書き、`refresh_assets` → `get_compilation_state` で確認している。
-- ブロッカー（T015）: Play 中に `input_keyboard` で W を押すと、デバイス状態では W が押されているが球が動かない。`eval_csharp` で調べると `Time.frameCount=1`、`Time.time=0` のままで、Play のフレームが進んでいない（`isPaused=false`、`timeScale=1`、`Application.isFocused=True`）。ゲーム側の `Keyboard.current.wKey.isPressed` は False、Move アクションの値は (0,0)。入力設定は `backgroundBehavior=ResetAndDisableNonBackgroundDevices`、`editorInputBehaviorInPlayMode=PointersAndKeyboardsRespectGameViewFocus`。
-- 次の操作: (1) フレームが進まない原因を調べる（Editor がバックグラウンドで更新を止めていないか、`EditorApplication.isPlaying` 中に `Time.frameCount` が増えるか時間をおいて再測定、Game View のフォーカス）。(2) フレームが進んだら、入力が届くか確認（Game View にフォーカスしてから入力、必要なら Input System の Play Mode 入力設定を確認）。(3) T015 を quickstart シナリオ 2 で完了させ、T016 以降（US3 はテスト先行）へ進む。
-- Unity Editor: Play は停止済み（`isPlaying=false`）。シーンは保存済み。
-- 未コミット: `Assets/` 一式、`ProjectSettings/SceneTemplateSettings.json`、`specs/001-ballcollect-core/tasks.md`。
+- 仕様: [`spec.md`](../../specs/001-ballcollect-core/spec.md) / [`plan.md`](../../specs/001-ballcollect-core/plan.md) / [`tasks.md`](../../specs/001-ballcollect-core/tasks.md) / [`quickstart.md`](../../specs/001-ballcollect-core/quickstart.md)。ユーザーが実装の継続を依頼済み。追加ルール（30秒制限など）は範囲外（002）。
+- 完了: シーン `Assets/Scenes/BallCollect.unity`（Floor、Player＋Rigidbody＋`PlayerController`、Item_1〜5 Trigger、カメラ、HUD の CollectedText「0/5」・ClearText 非アクティブ）、asmdef 2つ、マテリアル3つ、`Assets/Input/BallCollectControls.inputactions`、`Assets/Scripts/PlayerController.cs`。コンパイルエラー 0。
+- 検証済み: US1 の配置を画像で確認（[`evidence/us1-initial-state.png`](../../specs/001-ballcollect-core/evidence/us1-initial-state.png)）。T015：W/S/D/A を各1秒 → Z −7.00→5.66、Z −7.00→−20.28（床外へ落下）、X 0→12.49、X 0→−12.35。4方向とも期待どおり（verification.md は T029 で作る）。
+- 重要: **Play のフレームは Unity Editor が OS の前面にあるときだけ進む**。バックグラウンドでは `Time.frameCount` が 1 のまま（Run In Background は効果なし、元に戻した）。Play 検証の前に PowerShell の `SetForegroundWindow`（Unity の MainWindowHandle）で前面に出し、`eval_csharp` で frameCount の増加を確かめる。`.agents/skills/unity-editor/SKILL.md` と quickstart に記載済み。
+- C# の LSP 書き込み（`create_csharp_file`）は GitHub API の HTTP 403 で使えない。ファイルを直接書き、`refresh_assets` → `get_compilation_state` で確認している。複雑な JSON・C# は scratchpad のファイルから Python で JSON 化して渡すと安全。
+- 未コミットのまま残すもの: `ProjectSettings/ProjectSettings.asset`（Run In Background を戻した後に Unity が既定値を書き出した差分のみ。機能上の変更なし）。
+- Unity Editor: Play 停止済み、シーン保存済み。
+- 次の操作: T016 `CollectionState` の骨組み → T017 テスト7件 → T018 失敗確認 → T019 実装して成功確認 → T020〜T024。

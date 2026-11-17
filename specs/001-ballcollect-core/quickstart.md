@@ -18,7 +18,8 @@ unity-cli --output json raw load_scene --json '{"scenePath":"Assets/Scenes/BallC
 
 ## Play 検証の共通ループ
 
-1. `play_game` → `get_editor_state` で `isPlaying: true` を確認（開始命令の成功 ≠ 移行完了）
+0. Unity Editor を OS の前面に出す（バックグラウンドでは Play のフレームが進まない）
+1. `play_game` → `get_editor_state` で `isPlaying: true` を確認（開始命令の成功 ≠ 移行完了）し、`eval_csharp` で `Time.frameCount` が増えていることも確認する
 2. 状態を読む → 短い入力（`holdSeconds` 付き）→ 入力時間より少し長く待つ → 状態を再取得して比べる
 3. 終了時は入力を解除し `stop_game` → `isPlaying: false` を確認
 
