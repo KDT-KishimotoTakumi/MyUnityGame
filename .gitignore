@@ -59,3 +59,6 @@ Thumbs.db
 
 # unity-cli screenshots/captures (evidence worth keeping is copied into specs/)
 /.unity/
+
+# Code Coverage reports (regenerate with the steps in specs/001-ballcollect-core/quickstart.md)
+/CodeCoverage/

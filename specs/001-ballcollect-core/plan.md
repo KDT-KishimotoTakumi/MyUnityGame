@@ -16,13 +16,11 @@ unity-cli → Bridge → Editor の経路で行う（Unity のみで作業する
 
 **Language/Version**: C#（Unity 6000.6.4f1 標準の .NET / C# 9）
 
-**Primary Dependencies**: Input System 1.14.2、uGUI 1.0.0（Legacy Text）、Unity Physics。いずれも導入済み。
-追加パッケージなし
+**Primary Dependencies**: Input System 1.14.2、uGUI 1.0.0（Legacy Text）、Unity Physics、Code Coverage 1.3.0（2026-11-17 追加。SC-008 のカバレッジ測定に必要で、標準機能では行カバレッジを測れないため）
 
 **Storage**: N/A（保存データなし）
 
-**Testing**: Unity Test Framework 1.1.33 の EditMode テスト（ロジック）＋ unity-cli による Play 検証
-（`input_keyboard`・`get_component_values`・`capture_screenshot`）
+**Testing**: Unity Test Framework 1.1.33 の EditMode テスト（ロジック、TDD）＋ PlayMode の E2E テスト（シーンを読み込み、テスト用キーボードで入力して状態を確認）＋ unity-cli による Play 検証。Code Coverage で `MyUnityGame` アセンブリの行カバレッジ 90% 以上を確認
 
 **Target Platform**: Unity Editor の Play モード（Windows）。実行ファイルのビルドは範囲外
 
@@ -45,7 +43,7 @@ unity-cli → Bridge → Editor の経路で行う（Unity のみで作業する
 | II. テストを先に書く | PASS | `CollectionState` を純粋 C# で分離し、EditMode テストを先に書く（Red → Green） |
 | III. unity-cli で再現できる | PASS | シーン・GameObject・コンポーネント・スクリプト・asmdef・入力アセットを unity-cli で作成する |
 | IV. Play で確認する | PASS | [quickstart.md](./quickstart.md) の6シナリオを入力シミュレーションと状態取得で確認する |
-| V. シンプルさを優先 | PASS | 追加パッケージなし。クラスは責務ごとに5本。汎用化はしない |
+| V. シンプルさを優先 | PASS | 追加パッケージは Code Coverage のみ（SC-008 の測定に必要、理由を Technical Context に記載）。クラスは責務ごとに5本 |
 | 技術的な制約 | PASS | 名前空間 `MyUnityGame`、`Assets/Scripts`・`Assets/Tests`・`Assets/Scenes` に配置。旧 Input API 不使用 |
 
 **Post-design re-check**: PASS（Phase 1 の設計でも違反なし。Complexity Tracking は不要）
@@ -86,9 +84,12 @@ Assets/
 │   ├── CollectibleItem.cs                 # トリガー接触を GameManager へ通知
 │   └── HudView.cs                         # 「n/5」と CLEAR の表示
 └── Tests/
-    └── EditMode/
-        ├── MyUnityGame.Tests.EditMode.asmdef
-        └── CollectionStateTests.cs
+    ├── EditMode/
+    │   ├── MyUnityGame.Tests.EditMode.asmdef
+    │   └── CollectionStateTests.cs
+    └── PlayMode/
+        ├── MyUnityGame.Tests.PlayMode.asmdef   # refs: MyUnityGame, Unity.InputSystem, UnityEngine.UI, test runner
+        └── BallCollectE2ETests.cs              # quickstart シナリオ 1〜7
 ```
 
 **Structure Decision**: Unity 標準の `Assets/` 配下に、本書の技術的な制約どおり Scripts / Tests / Scenes を置く。

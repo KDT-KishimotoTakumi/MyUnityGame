@@ -9,8 +9,7 @@ description: "Task list for BallCollect core game (001)"
 
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/observation-contract.md, quickstart.md
 
-**Tests**: 憲章 原則 II（NON-NEGOTIABLE）と SC-005 により、`CollectionState` の EditMode テストを先に書く。
-入力・物理・UI は原則 IV により Play 検証（quickstart.md）で確認する。
+**Tests**: 憲章 原則 II（NON-NEGOTIABLE）と SC-005 により TDD で進める。ロジックは EditMode テスト、B1〜B6 の通しの動作は PlayMode の E2E テスト（FR-015・SC-007）、行カバレッジは 90% 以上（SC-008）。画面の見た目は unity-cli の Play 検証で確認する。
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -96,45 +95,64 @@ description: "Task list for BallCollect core game (001)"
 
 ### Tests for User Story 3（先に書いて失敗を確認する）⚠️
 
-- [ ] T016 [US3] `Assets/Scripts/CollectionState.cs` に API だけの骨組みを作る（テストがコンパイルできるようにするため）：`public sealed class CollectionState`、コンストラクタ `CollectionState(int totalCount = 5)`、`int TotalCount { get; }`、`int CollectedCount { get; }`、`bool IsCleared { get; }`、`bool TryCollect(int itemId)`、`void Reset()`。メソッド本体は `throw new System.NotImplementedException()`
-- [ ] T017 [US3] `Assets/Tests/EditMode/CollectionStateTests.cs` に NUnit テストを書く：(1) 初期値は `CollectedCount == 0` かつ `IsCleared == false`、(2) 新しい ID の `TryCollect` は true を返し回収数 1、(3) 同じ ID を2回 `TryCollect` しても回収数は 1 で2回目は false、(4) 範囲外 ID（−1 と 5）は false で回収数は変わらない、(5) 4個回収では `IsCleared == false`、(6) 5個回収で `IsCleared == true`、(7) `Reset()` 後は回収数 0・未クリアで、同じ ID を再び回収できる
-- [ ] T018 [US3] `run_tests`（`testMode: EditMode`）→ `get_test_status` を `completed` までポーリングし、7件が**失敗**すること（Red）を名前・件数で確認する
+- [X] T016 [US3] `Assets/Scripts/CollectionState.cs` に API だけの骨組みを作る（テストがコンパイルできるようにするため）：`public sealed class CollectionState`、コンストラクタ `CollectionState(int totalCount = 5)`、`int TotalCount { get; }`、`int CollectedCount { get; }`、`bool IsCleared { get; }`、`bool TryCollect(int itemId)`、`void Reset()`。メソッド本体は `throw new System.NotImplementedException()`
+- [X] T017 [US3] `Assets/Tests/EditMode/CollectionStateTests.cs` に NUnit テストを書く：(1) 初期値は `CollectedCount == 0` かつ `IsCleared == false`、(2) 新しい ID の `TryCollect` は true を返し回収数 1、(3) 同じ ID を2回 `TryCollect` しても回収数は 1 で2回目は false、(4) 範囲外 ID（−1 と 5）は false で回収数は変わらない、(5) 4個回収では `IsCleared == false`、(6) 5個回収で `IsCleared == true`、(7) `Reset()` 後は回収数 0・未クリアで、同じ ID を再び回収できる
+- [X] T018 [US3] `run_tests`（`testMode: EditMode`）→ `get_test_status` を `completed` までポーリングし、7件が**失敗**すること（Red）を名前・件数で確認する
 
 ### Implementation for User Story 3
 
-- [ ] T019 [US3] `Assets/Scripts/CollectionState.cs` を実装する。data-model.md の規則をそのまま守る：「範囲外 ID（0 未満・TotalCount 以上）または回収済み ID なら何もせず false」「`0 ≤ CollectedCount ≤ TotalCount`」「`IsCleared ⇔ CollectedCount == TotalCount`」「`Reset()`：集合を空にし、`CollectedCount = 0`、`IsCleared = false`」。回収済み ID は `HashSet<int>` で持つ。再度テストを実行し 7件**成功**（Green）を確認
-- [ ] T020 [P] [US3] `Assets/Scripts/HudView.cs` を作成する：`[SerializeField] UnityEngine.UI.Text collectedText`、`[SerializeField] GameObject clearText`、`public void Refresh(int collected, int total, bool cleared)` で `collectedText.text = $"{collected}/{total}"`、`clearText.SetActive(cleared)`
-- [ ] T021 [P] [US3] `Assets/Scripts/CollectibleItem.cs` を作成する：`[SerializeField] int itemId`、`[SerializeField] GameManager gameManager`、`public int ItemId => itemId`。`OnTriggerEnter(Collider other)` で `other.CompareTag("Player")` かつ `gameManager.TryCollect(itemId)` が true なら `gameObject.SetActive(false)`
-- [ ] T022 [US3] `Assets/Scripts/GameManager.cs` を作成する（回収部分）：`[SerializeField] PlayerController player`、`[SerializeField] CollectibleItem[] items`、`[SerializeField] HudView hud`、`[SerializeField] InputActionAsset inputActions`、観測用 `[SerializeField] int collectedCount` と `[SerializeField] bool isCleared`（observation-contract.md）。`CollectionState state = new CollectionState(5)`。`public bool TryCollect(int itemId)` は state に委譲し、成功時に観測用フィールドと `hud.Refresh` を更新する。`Start` で `hud.Refresh(0, 5, false)`
-- [ ] T023 [US3] シーンを配線する：空の GameObject `GameManager` に `GameManager` を追加。`Item_1`〜`Item_5` に `CollectibleItem` を追加し `itemId` を 0〜4、`gameManager` を設定。`HUD` に `HudView` を追加し `collectedText` / `clearText` を設定。`GameManager` の `player` / `items`（5個、順番どおり）/ `hud` を設定して `save_scene`
-- [ ] T024 [US3] Play 検証（quickstart シナリオ 3・6）：W で Item_1 に触れて `Item_1` 非アクティブ・`collectedCount=1`・「1/5」・CLEAR 非表示を確認。続けて W を保持して全回収し、4/5 までは CLEAR 非表示、5/5 で `isCleared=true` と `ClearText` アクティブを確認、`capture_screenshot`（`includeUI: true`）で CLEAR 画面の根拠を残す。`stop_game`
+- [X] T019 [US3] `Assets/Scripts/CollectionState.cs` を実装する。data-model.md の規則をそのまま守る：「範囲外 ID（0 未満・TotalCount 以上）または回収済み ID なら何もせず false」「`0 ≤ CollectedCount ≤ TotalCount`」「`IsCleared ⇔ CollectedCount == TotalCount`」「`Reset()`：集合を空にし、`CollectedCount = 0`、`IsCleared = false`」。回収済み ID は `HashSet<int>` で持つ。再度テストを実行し 7件**成功**（Green）を確認
+- [X] T020 [P] [US3] `Assets/Scripts/HudView.cs` を作成する：`[SerializeField] UnityEngine.UI.Text collectedText`、`[SerializeField] GameObject clearText`、`public void Refresh(int collected, int total, bool cleared)` で `collectedText.text = $"{collected}/{total}"`、`clearText.SetActive(cleared)`
+- [X] T021 [P] [US3] `Assets/Scripts/CollectibleItem.cs` を作成する：`[SerializeField] int itemId`、`[SerializeField] GameManager gameManager`、`public int ItemId => itemId`。`OnTriggerEnter(Collider other)` で `other.CompareTag("Player")` かつ `gameManager.TryCollect(itemId)` が true なら `gameObject.SetActive(false)`
+- [X] T022 [US3] `Assets/Scripts/GameManager.cs` を作成する（回収部分）：`[SerializeField] PlayerController player`、`[SerializeField] CollectibleItem[] items`、`[SerializeField] HudView hud`、`[SerializeField] InputActionAsset inputActions`、観測用 `[SerializeField] int collectedCount` と `[SerializeField] bool isCleared`（observation-contract.md）。`CollectionState state = new CollectionState(5)`。`public bool TryCollect(int itemId)` は state に委譲し、成功時に観測用フィールドと `hud.Refresh` を更新する。`Start` で `hud.Refresh(0, 5, false)`
+- [X] T023 [US3] シーンを配線する：空の GameObject `GameManager` に `GameManager` を追加。`Item_1`〜`Item_5` に `CollectibleItem` を追加し `itemId` を 0〜4、`gameManager` を設定。`HUD` に `HudView` を追加し `collectedText` / `clearText` を設定。`GameManager` の `player` / `items`（5個、順番どおり）/ `hud` を設定して `save_scene`
+- [X] T024 [US3] Play 検証（quickstart シナリオ 3・6）：W で Item_1 に触れて `Item_1` 非アクティブ・`collectedCount=1`・「1/5」・CLEAR 非表示を確認。続けて W を保持して全回収し、4/5 までは CLEAR 非表示、5/5 で `isCleared=true` と `ClearText` アクティブを確認、`capture_screenshot`（`includeUI: true`）で CLEAR 画面の根拠を残す。`stop_game`
 
 **Checkpoint**: 回収とクリアが動き、ロジックのテストが全件成功
 
 ---
 
-## Phase 6: User Story 4 - 落下と R キーで初期状態に戻る（B5・B6）(Priority: P2)
+## Phase 6: E2E テストの土台（FR-015・SC-007）
 
-**Goal**: 落下・途中R・クリア後R のどれでも、位置・速度・回収数・アイテム5個・HUD がすべて開始時に戻る
+**Purpose**: quickstart のシナリオを自動で通しで確かめる PlayMode テストを用意し、既に作った US1〜US3 を先に固める
 
-**Independent Test**: 1個回収後に R／落下、クリア後に R を行い、data-model.md の初期値5項目がすべて一致する
-
-### Implementation for User Story 4
-
-- [ ] T025 [US4] `Assets/Scripts/GameManager.cs` に初期化を追加する：`public void ResetGame()` は research.md R5 の順で (1) `player.ResetToStart()`、(2) `state.Reset()`、(3) `items` をすべて `SetActive(true)`、(4) 観測用フィールドと `hud.Refresh(0, 5, false)`。`OnEnable` で `inputActions.FindAction("Gameplay/Restart", true)` を Enable し、`Update` で `WasPressedThisFrame()` なら `ResetGame()`。`Update` で `player.transform.position.y < -5f` なら `ResetGame()`
-- [ ] T026 [US4] `GameManager` の `inputActions` に `Assets/Input/BallCollectControls.inputactions` を設定して `save_scene`。`get_compilation_state` で `errorCount: 0`
-- [ ] T027 [US4] Play 検証（quickstart シナリオ 4・5・7）：1/5 で R → 初期状態、1/5 で D を保持して床外へ落とす → 初期状態、CLEAR 中に R → 初期状態で再び 1/5 から数えられる。各回で `Player` の位置・`linearVelocity`・`collectedCount`・`isCleared`・Item_1〜5 のアクティブ・`CollectedText`/`ClearText` を取得して比べる。R を保持し続けても状態が壊れないことも確認。`stop_game`
-
-**Checkpoint**: B1〜B6 がすべて Play で確認できる
+- [X] T025 PlayMode テスト用 asmdef を `eval_csharp` で作成する：`Assets/Tests/PlayMode/MyUnityGame.Tests.PlayMode.asmdef`（`"references": ["MyUnityGame", "Unity.InputSystem", "UnityEngine.UI", "UnityEngine.TestRunner", "UnityEditor.TestRunner"]`, `"overrideReferences": true`, `"precompiledReferences": ["nunit.framework.dll"]`, `"defineConstraints": ["UNITY_INCLUDE_TESTS"]`）。`Assets/Scenes/BallCollect.unity` を Build Settings に追加する（テストから `SceneManager.LoadScene` で読み込むため）
+- [X] T026 `Assets/Tests/PlayMode/BallCollectE2ETests.cs` に共通の土台を書く：`[UnitySetUp]` でシーンを読み込み、テスト用キーボード（`InputSystem.AddDevice<Keyboard>`）を追加し、`InputSystem.settings.editorInputBehaviorInPlayMode` を `AllDeviceInputAlwaysGoesToGameView` に一時変更、`[UnityTearDown]` で元に戻してデバイスを削除。キーの押下・解放は `InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.W))`。状態は `GameManager` の `collectedCount` / `isCleared`、Player の Rigidbody、Item の `activeSelf`、HUD の Text から読む
+- [X] T027 [US1] E2E シナリオ1：開始直後に球 (0,0.5,−7)・速度0、Item 5個アクティブ、回収数0・未クリア、「0/5」、ClearText 非アクティブ
+- [X] T028 [US2] E2E シナリオ2：W/S/D/A をそれぞれ短時間押すと Z 増・Z 減・X 増・X 減（各方向は新しく読み込んだシーンで確認）
+- [X] T029 [US3] E2E シナリオ3・6：Item_1 回収で 1/5・CLEAR なし、W を押し続けて全回収するまで毎フレーム「回収数 < 5 なら CLEAR 非表示」を確認し、5/5 で CLEAR 表示
+- [X] T030 PlayMode テストを実行（Unity を前面に出してから `run_tests` `testMode: PlayMode`、`filter: MyUnityGame.Tests`）し、T027〜T029 が成功することを名前・件数で確認する
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 7: User Story 4 - 落下と R キーで初期状態に戻る（B5・B6）(Priority: P2)
 
-- [ ] T028 quickstart.md のシナリオ 1〜7 を通しで実行し、`read_console` で Error / Exception が 0 件であることを確認する
-- [ ] T029 `specs/001-ballcollect-core/verification.md` を作成する：B1〜B6 ごとに「操作・期待・実際・根拠・判定（確認済み／未成立／未確認）」を数行。EditMode テストの名前・件数・合否と、スクリーンショット2枚以上の保存場所も書く
-- [ ] T030 `code-review-and-quality` スキルで差分をレビューし（基準：constitution、spec.md、本 tasks.md）、指摘があれば修正して再確認する
-- [ ] T031 入力解除・`stop_game`（`isPlaying: false`）・`save_scene` を確認し、変更をコミットする
+**Goal**: 落下・途中R・クリア後R のどれでも、位置・速度・回収数・アイテム5個・HUD がすべて開始時に戻る
+
+**Independent Test**: E2E シナリオ 4・5・7 が成功する
+
+### Tests for User Story 4（先に書いて失敗を確認する）⚠️
+
+- [X] T031 [US4] E2E シナリオ4・5・7 を `BallCollectE2ETests.cs` に追加する：1/5 で R → 初期状態5項目、1/5 で D を押し続けて落下 → 初期状態、全回収後に R → 初期状態でもう一度 1/5 から数えられる。R を押し続けても状態が壊れないことも確認
+- [X] T032 [US4] PlayMode テストを実行し、T031 の3件が**失敗**すること（Red）を確認する
+
+### Implementation for User Story 4
+
+- [X] T033 [US4] `Assets/Scripts/GameManager.cs` に初期化を追加する：`public void ResetGame()` は research.md R5 の順で (1) `player.ResetToStart()`、(2) `state.Reset()`、(3) `items` をすべて `SetActive(true)`、(4) 観測用フィールドと HUD を更新。`OnEnable` で `inputActions.FindAction("Gameplay/Restart", true)` を Enable し、`Update` で `WasPressedThisFrame()` なら `ResetGame()`。`Update` で `player.transform.position.y < -5f` なら `ResetGame()`
+- [X] T034 [US4] コンパイルエラー 0 を確認し、PlayMode テストを再実行して T031 の3件が**成功**（Green）、既存の E2E も成功していることを確認する
+
+**Checkpoint**: B1〜B6 がすべて自動 E2E テストで確認できる
+
+---
+
+## Phase 8: Polish & Cross-Cutting Concerns
+
+- [X] T035 カバレッジを測る：Code Coverage を有効にして EditMode と PlayMode のテストを実行し、`MyUnityGame` アセンブリの行カバレッジを報告から読む。90% 未満なら、通っていない行を確認してテストを足す（テストのためだけの不要なコードは足さない）。結果（%、測定日、対象アセンブリ）を記録する
+- [ ] T036 unity-cli による手動 Play 検証（quickstart シナリオ1・6）で画面の根拠を残す：初期画面と CLEAR 画面を `capture_screenshot`（`includeUI: true`）で撮り、`specs/001-ballcollect-core/evidence/` に保存する。`read_console` で Error / Exception が 0 件
+- [ ] T037 `specs/001-ballcollect-core/verification.md` を作成する：B1〜B6 ごとに「操作・期待・実際・根拠・判定（確認済み／未成立／未確認）」を数行。EditMode と E2E テストの名前・件数・合否、カバレッジ %、画像の保存場所を書く
+- [ ] T038 `code-review-and-quality` スキルで差分をレビューし（基準：constitution、spec.md、本 tasks.md）、指摘があれば修正して再確認する
+- [ ] T039 `unity-check` エージェントで接続・シーン・コンパイル・コンソールを読み取り専用で点検する
+- [ ] T040 入力解除・`stop_game`（`isPlaying: false`）・`save_scene` を確認し、HANDOFF を更新して、コミット・プル・プッシュする
 
 ---
 
@@ -142,7 +160,7 @@ description: "Task list for BallCollect core game (001)"
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)** → **Foundational (Phase 2)** → **US1** → **US2** → **US3** → **US4** → **Polish**
+- **Setup (Phase 1)** → **Foundational (Phase 2)** → **US1** → **US2** → **US3** → **E2E の土台** → **US4** → **Polish**
 - このゲームは1シーン・1 Editor を共有するため、ストーリーは優先度順に**順番に**進める（並列に Editor を操作しない）
 
 ### User Story Dependencies
@@ -150,11 +168,12 @@ description: "Task list for BallCollect core game (001)"
 - **US1 (P1)**: Phase 2 の後。他に依存しない
 - **US2 (P1)**: US1 の `Player` が必要
 - **US3 (P2)**: US1 の Item・HUD が必要。移動の確認に US2 を使う
-- **US4 (P2)**: US3 の `GameManager` と `CollectionState.Reset()` を拡張する（T025 は T022 と同じファイル）
+- **US4 (P2)**: US3 の `GameManager` と `CollectionState.Reset()` を拡張する（T033 は T022 と同じファイル）
+- **E2E（Phase 6）**: US1〜US3 の実装の後、US4 の前。US4 は E2E テストを先に書いてから実装する
 
 ### Within Each User Story
 
-- テスト（T017）は実装（T019）より先に書き、失敗を確認する（T018）
+- テストは実装より先に書き、失敗を確認する（ロジック：T017→T018→T019、E2E：T031→T032→T033）
 - スクリプト作成 → シーンへの配線 → Play 検証 の順
 - 各ストーリーの最後にコンパイルエラー 0・シーン保存・Play 停止
 

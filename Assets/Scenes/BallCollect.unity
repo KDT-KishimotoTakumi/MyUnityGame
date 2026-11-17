@@ -223,6 +223,7 @@ GameObject:
   - component: {fileID: 118003047}
   - component: {fileID: 118003046}
   - component: {fileID: 118003045}
+  - component: {fileID: 118003049}
   m_Layer: 0
   m_Name: Item_5
   m_TagString: Untagged
@@ -323,6 +324,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &118003049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 118003044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5db5c22edd2f20044b221b97b2577053, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MyUnityGame::MyUnityGame.CollectibleItem
+  itemId: 4
+  gameManager: {fileID: 1077274688}
 --- !u!1 &653344947
 GameObject:
   m_ObjectHideFlags: 0
@@ -335,6 +350,7 @@ GameObject:
   - component: {fileID: 653344950}
   - component: {fileID: 653344949}
   - component: {fileID: 653344948}
+  - component: {fileID: 653344952}
   m_Layer: 0
   m_Name: Item_4
   m_TagString: Untagged
@@ -435,6 +451,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &653344952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 653344947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5db5c22edd2f20044b221b97b2577053, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MyUnityGame::MyUnityGame.CollectibleItem
+  itemId: 3
+  gameManager: {fileID: 1077274688}
 --- !u!1 &720769317
 GameObject:
   m_ObjectHideFlags: 0
@@ -539,6 +569,7 @@ GameObject:
   - component: {fileID: 795989310}
   - component: {fileID: 795989309}
   - component: {fileID: 795989308}
+  - component: {fileID: 795989312}
   m_Layer: 5
   m_Name: HUD
   m_TagString: Untagged
@@ -631,6 +662,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &795989312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 795989307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 123a2135a63643146bebe0f2e93c4039, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MyUnityGame::MyUnityGame.HudView
+  collectedText: {fileID: 720769319}
+  clearText: {fileID: 1313600386}
 --- !u!1 &926380044
 GameObject:
   m_ObjectHideFlags: 0
@@ -643,6 +688,7 @@ GameObject:
   - component: {fileID: 926380047}
   - component: {fileID: 926380046}
   - component: {fileID: 926380045}
+  - component: {fileID: 926380049}
   m_Layer: 0
   m_Name: Item_3
   m_TagString: Untagged
@@ -743,6 +789,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &926380049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 926380044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5db5c22edd2f20044b221b97b2577053, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MyUnityGame::MyUnityGame.CollectibleItem
+  itemId: 2
+  gameManager: {fileID: 1077274688}
 --- !u!1 &1041376753
 GameObject:
   m_ObjectHideFlags: 0
@@ -840,6 +900,62 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &1077274687
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1077274689}
+  - component: {fileID: 1077274688}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1077274688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1077274687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef7b03f21d15d8b47a0ca85e229ef7e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MyUnityGame::MyUnityGame.GameManager
+  player: {fileID: 1313975655}
+  items:
+  - {fileID: 1114243637}
+  - {fileID: 1848783778}
+  - {fileID: 926380049}
+  - {fileID: 653344952}
+  - {fileID: 118003049}
+  hud: {fileID: 795989312}
+  inputActions: {fileID: -944628639613478452, guid: 3ea84f4ad68e37c4f8561d1525292522, type: 3}
+  collectedCount: 0
+  isCleared: 0
+  fallResetHeight: -5
+--- !u!4 &1077274689
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1077274687}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1114243632
 GameObject:
   m_ObjectHideFlags: 0
@@ -852,6 +968,7 @@ GameObject:
   - component: {fileID: 1114243635}
   - component: {fileID: 1114243634}
   - component: {fileID: 1114243633}
+  - component: {fileID: 1114243637}
   m_Layer: 0
   m_Name: Item_1
   m_TagString: Untagged
@@ -952,6 +1069,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1114243637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1114243632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5db5c22edd2f20044b221b97b2577053, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MyUnityGame::MyUnityGame.CollectibleItem
+  itemId: 0
+  gameManager: {fileID: 1077274688}
 --- !u!1 &1313600386
 GameObject:
   m_ObjectHideFlags: 0
@@ -1199,6 +1330,7 @@ GameObject:
   - component: {fileID: 1848783776}
   - component: {fileID: 1848783775}
   - component: {fileID: 1848783774}
+  - component: {fileID: 1848783778}
   m_Layer: 0
   m_Name: Item_2
   m_TagString: Untagged
@@ -1299,6 +1431,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1848783778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1848783773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5db5c22edd2f20044b221b97b2577053, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MyUnityGame::MyUnityGame.CollectibleItem
+  itemId: 1
+  gameManager: {fileID: 1077274688}
 --- !u!1 &1916297693
 GameObject:
   m_ObjectHideFlags: 0
@@ -1426,3 +1572,4 @@ SceneRoots:
   - {fileID: 653344951}
   - {fileID: 118003048}
   - {fileID: 795989311}
+  - {fileID: 1077274689}

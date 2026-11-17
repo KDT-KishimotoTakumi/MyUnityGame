@@ -1,0 +1,9 @@
+{
+  "name": "MyUnityGame.Tests.PlayMode",
+  "rootNamespace": "MyUnityGame.Tests",
+  "references": ["MyUnityGame", "Unity.InputSystem", "UnityEngine.UI", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll"],
+  "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"]
+}
