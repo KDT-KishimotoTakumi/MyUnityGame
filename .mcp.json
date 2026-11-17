@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "context-mode": {
+      "command": "node",
+      "args": ["tools/start-context-mode.mjs"],
+      "env": { "CONTEXT_MODE_PLATFORM": "claude-code" }
+    }
+  }
+}
