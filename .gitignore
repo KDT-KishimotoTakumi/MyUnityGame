@@ -57,5 +57,5 @@ Thumbs.db
 # Claude Code personal settings (may contain local paths/credentials)
 .claude/settings.local.json
 
-# context-mode (local install & index)
-/Saved/
+# unity-cli screenshots/captures (evidence worth keeping is copied into specs/)
+/.unity/

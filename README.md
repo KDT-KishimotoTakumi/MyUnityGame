@@ -45,14 +45,12 @@ Claude Code のチャットで次の順に使います。
 /speckit-constitution  → /speckit-specify → /speckit-clarify（任意）→ /speckit-plan → /speckit-tasks → /speckit-implement → /speckit-converge
 ```
 
-## マルチエージェント分業ワークフロー
-[0x000x7f/claude-code-agent-workflow](https://github.com/0x000x7f/claude-code-agent-workflow)（MIT License、commit `dcede8f`）を、このプロジェクト用に調整して入れています。メイン会話が PM になり、作業の量と難しさで担当を振り分けます。
+## AI の役割分担とコンテキスト節約
+[KDT-KishimotoTakumi/TestUnitySlotTower](https://github.com/KDT-KishimotoTakumi/TestUnitySlotTower) の仕組みを、unity-cli 用に書き換えて入れています。ルールの正本は `AGENTS.md`（Claude Code は `CLAUDE.md` 経由で読む）です。
 
 | 種類 | 場所 | 内容 |
 |---|---|---|
-| サブエージェント | `.claude/agents/` | implementer（Sonnet・単純で量の多い編集）、implementer-heavy（Opus・複数ファイルにまたがる実装）、reviewer（読み取り専用の検収） |
-| コマンド | `.claude/commands/` | `/analyze-codebase`、`/implement-phase <N>`、`/review-diff`、`/handoff <topic>` |
-| ルール | `.claude/rules/agent-workflow.md` | 振り分け表・検収が必須の範囲・Unity 用の追加ルール |
-| 他ツール向け | `AGENTS.md` | Codex / Cursor が最初に読む前提・禁止事項・テストコマンド |
-
-元のリポジトリからの主な変更点：モデル指定を別名（`sonnet` / `opus`）に変更、reviewer に unity-cli の読み取り専用コマンドを許可、新機能の計画は Spec Kit の `specs/` を正とする。作者の環境専用のルール（output-style、remote-change-log、web-freshness）と `doctor.ps1` は入れていません。
+| エージェント | `.claude/agents/` | `code-task`（場所が分かっている小さな C# 修正）、`unity-check`（読み取り専用の接続・シーン・コンソール点検）。広い作業や Editor の変更は通常のセッションで行う |
+| スキル | `.agents/skills/`（正本、Codex と共有）、`.claude/skills/`（読み込み用） | `unity-verify`、`unity-editor`、`spec`、`handoff` |
+| 引き継ぎ | `docs/ai/HANDOFF.md` | 区切りで「現在の作業」を上書きし、`/clear` の後は「HANDOFF を読んで続きから」で再開する |
+| 読み取り制限 | `.claude/settings.json` | Library・Temp・Logs・生成された csproj/sln などを読まない |
