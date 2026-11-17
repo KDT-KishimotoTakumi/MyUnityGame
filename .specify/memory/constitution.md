@@ -1,50 +1,82 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# MyUnityGame Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. 遊べる最小単位で作る
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+- 各機能は、それ単体で Play して確認できる単位（ユーザーストーリー）に分けて実装しなければならない（MUST）。
+- 最初のマイルストーンは「操作する・ボールを回収する・クリアする」が一通り遊べる状態とし、
+  演出や追加ルールはその後に積み上げる。
+- 1つのタスクが完了した時点で、プロジェクトはコンパイルエラーのない状態でなければならない（MUST）。
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+理由: 学習用の小規模ゲームでは、常に動く状態を保つことが手戻りを最も減らす。
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### II. ゲームロジックはテストを先に書く（NON-NEGOTIABLE）
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+- 回収・スコア・クリア判定・初期化など、入力や描画に依存しないロジックは、
+  MonoBehaviour から切り離したプレーンな C# クラスに置かなければならない（MUST）。
+- そのロジックは Unity Test Framework の EditMode テストを先に書き、失敗を確認してから実装する
+  （Red → Green → Refactor）。
+- バグ修正では、まず再現するテストを追加してから修正しなければならない（MUST）。
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+理由: ロジックを分離すると、エディタを Play しなくても数秒で正しさを確かめられる。
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### III. エディタ操作は unity-cli で再現できるようにする
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+- シーン作成、GameObject・コンポーネントの追加や変更、設定変更は、
+  unity-cli（`.claude/skills/unity-*`）で行い、手順として記録できる形にしなければならない（MUST）。
+- エディタの GUI だけで行った変更は、その内容を tasks.md またはコミットメッセージに書き残す。
+- 作業の前に `unity-cli system ping` で CLI と Bridge のバージョン一致（`match`）を確認する。
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+理由: AI エージェントと人の両方が同じ手順を再実行・検証できるようにするため。
+
+### IV. Play モードで実際に動かして確認する
+
+- 入力・物理・UI が関わる機能は、unity-cli の Play モード操作（入力シミュレーション、
+  コンソール確認、スクリーンショット等）で動作を確認してから完了としなければならない（MUST）。
+- 完了の判断には、spec.md の受け入れ条件を1つずつ照合した結果を残す。
+- Play 中にコンソールへ Error / Exception が出ている状態を完了としてはならない（MUST NOT）。
+
+理由: EditMode テストでは、入力や衝突判定などの実行時の不具合は見つけられないため。
+
+### V. シンプルさを優先する
+
+- 今必要な機能だけを実装し、将来のための抽象化や汎用化は行わない（YAGNI）。
+- 外部パッケージやアセットの追加は、標準機能で実現できない理由を plan.md に書いた場合に限る。
+- スクリプトは1クラス1ファイルとし、責務が2つ以上になったら分割する。
+
+理由: 小規模なゲームでは、構造の複雑さが学習と保守のコストに直結する。
+
+## 技術的な制約
+
+- エンジン: Unity 6（6000.6.4f1）。バージョンを上げる場合は本書の改定として扱う。
+- 言語: C#。名前空間は `MyUnityGame` 配下に置く。
+- 入力: 新しい Input System（`.inputactions` アセット）を使う。旧 Input Manager の API
+  （`Input.GetKey` 等）は新規コードで使わない。
+- テスト: Unity Test Framework（EditMode / PlayMode）。テストは `Assets/Tests/` 配下に置く。
+- 配置: スクリプトは `Assets/Scripts/`、シーンは `Assets/Scenes/` に置く。
+- 自動化: unity-cli / unity-cli-bridge 0.19.1。両者のバージョンを揃える。
+
+## 開発フローと品質ゲート
+
+- 機能は Spec Kit の順序で進める:
+  `/speckit-specify` → （必要なら `/speckit-clarify`）→ `/speckit-plan` → `/speckit-tasks`
+  → `/speckit-implement` → `/speckit-converge`。
+- plan.md の Constitution Check では、原則 I〜V への適合を確認し、違反がある場合は理由を記録する。
+- 機能を完了とする条件（すべて満たすこと）:
+  1. コンパイルエラーがない
+  2. EditMode テストがすべて成功している
+  3. Play モードで受け入れ条件を確認済み（原則 IV）
+  4. `code-review-and-quality` スキルでレビュー済み
+- コミットは機能またはタスク単位で小さく行い、`main` へ直接大きな変更を積まない。
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- 本書はプロジェクト内の他のあらゆる慣習・手順より優先する。
+- 改定は本ファイルを編集して行い、Sync Impact Report に変更点を記録したうえでコミットする。
+- バージョンはセマンティックバージョニングに従う:
+  原則の削除・再定義は MAJOR、原則や節の追加・大幅な拡充は MINOR、文言の修正は PATCH。
+- 各機能の plan.md とレビュー時に、本書への適合を確認する。複雑さを持ち込む場合は理由を明記する。
+- 日々の開発手順の詳細は `README.md` と `.claude/skills/` の各スキルを参照する。
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-11-17 | **Last Amended**: 2026-11-17
