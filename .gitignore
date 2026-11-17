@@ -53,3 +53,6 @@ crashlytics-build.properties
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude Code personal settings (may contain local paths/credentials)
+.claude/settings.local.json
